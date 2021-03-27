@@ -8,7 +8,11 @@
 
 import UIKit
 import CoreData
-class ViewController: UIViewController {
+import CoreMotion
+import CoreLocation
+import MapKit
+
+class ViewController: UIViewController, CLLocationManagerDelegate {
     
     var res:NSManagedObject!
     
@@ -19,6 +23,17 @@ class ViewController: UIViewController {
     @IBOutlet weak var phone: UILabel!
     @IBOutlet weak var record: UILabel!
     @IBOutlet weak var tag: UILabel!
+    
+    @IBOutlet weak var map: MKMapView!
+    
+    @IBOutlet weak var x: UILabel!
+    
+    @IBOutlet weak var y: UILabel!
+    
+    
+    var motionManager:CMMotionManager!
+    var locationManager:CLLocationManager!
+    var timer:Timer!
     
     @IBAction func Save(_ sender: Any) {
         let alert = UIAlertController(title: "Edit", message: "", preferredStyle: .alert)
@@ -72,6 +87,29 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        
+        motionManager = CMMotionManager()
+        if motionManager.isAccelerometerAvailable{
+            motionManager.accelerometerUpdateInterval = 1.0/60.0
+            motionManager.startAccelerometerUpdates()
+            
+            timer = Timer(fire: Date(), interval: (1.0/60.0), repeats: true, block:{(timer) in
+                if let data = self.motionManager.accelerometerData{
+                    self.x.text = String(data.acceleration.x)
+                    self.y.text = String(data.acceleration.y)
+                }
+            })
+        }else{
+            print("Accelerometer is not available")
+        }
+        
+        locationManager = CLLocationManager()
+        locationManager.delegate = self
+        
+        locationManager.requestAlwaysAuthorization()
+        
+        locationManager.startUpdatingLocation()
+
     }
     override func viewWillAppear(_ animated: Bool) {
         if (res != nil) {
@@ -84,6 +122,33 @@ class ViewController: UIViewController {
         }
     }
     
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        for l in locations{
+            //map.centerCoordinate = l.coordinate
+            x.text = String(l.coordinate.latitude)
+            y.text = String(l.coordinate.longitude)
+            
+            let region = MKCoordinateRegion(
+                center: l.coordinate,
+                latitudinalMeters: 100,
+                longitudinalMeters: 100
+            )
+            map.setRegion(region, animated: true)
+            map.addAnnotation(PointOfInterest(location: l.coordinate, title: "Destination here"))
+        }
+    }
 
 }
+
+class PointOfInterest: NSObject, MKAnnotation{
+    var coordinate: CLLocationCoordinate2D
+    var title: String?
+    
+    init(location: CLLocationCoordinate2D, title: String){
+        self.coordinate = location
+        self.title = title
+    }
+}
+
 
