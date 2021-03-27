@@ -11,6 +11,9 @@ import CoreData
 
 class TableViewController: UITableViewController {
     
+  
+    @IBAction func AboutUs(_ sender: Any) {
+    }
     
     var restaurants: [NSManagedObject] = []
     @IBAction func addRestaurand(_ sender: Any) {
