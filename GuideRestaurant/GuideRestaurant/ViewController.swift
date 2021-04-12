@@ -1,8 +1,8 @@
 //
 //  ViewController.swift
-//  Restaurant
+//  GuideRestaurant
 //
-//  Created by Tech on 2021-03-22.
+//  Created by Tech on 2021-04-11.
 //  Copyright © 2021 GBC. All rights reserved.
 //
 
@@ -13,11 +13,9 @@ import CoreLocation
 import MapKit
 
 class ViewController: UIViewController, CLLocationManagerDelegate {
-    
-    var res:NSManagedObject!
-    
 
-   
+     var res:NSManagedObject!
+    
     @IBOutlet weak var name: UILabel!
     @IBOutlet weak var address: UILabel!
     @IBOutlet weak var phone: UILabel!
@@ -27,15 +25,14 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     @IBOutlet weak var map: MKMapView!
     
     @IBOutlet weak var x: UILabel!
-    
     @IBOutlet weak var y: UILabel!
-    
     
     var motionManager:CMMotionManager!
     var locationManager:CLLocationManager!
     var timer:Timer!
     
-    @IBAction func Save(_ sender: Any) {
+    @IBAction func Edit(_ sender: Any) {
+    
         let alert = UIAlertController(title: "Edit", message: "", preferredStyle: .alert)
         alert.addTextField(configurationHandler: {(textFieldName) in
             textFieldName.placeholder = self.res.value(forKey: "name") as? String
@@ -109,7 +106,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         locationManager.requestAlwaysAuthorization()
         
         locationManager.startUpdatingLocation()
-
+        
     }
     override func viewWillAppear(_ animated: Bool) {
         if (res != nil) {
@@ -138,7 +135,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
             map.addAnnotation(PointOfInterest(location: l.coordinate, title: "Destination here"))
         }
     }
-
+    
 }
 
 class PointOfInterest: NSObject, MKAnnotation{
@@ -150,5 +147,3 @@ class PointOfInterest: NSObject, MKAnnotation{
         self.title = title
     }
 }
-
-
