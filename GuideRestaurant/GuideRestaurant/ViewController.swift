@@ -31,6 +31,16 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     var locationManager:CLLocationManager!
     var timer:Timer!
     
+    
+    
+    @IBAction func Share(_ sender: Any) {
+        let activityController = UIActivityViewController(activityItems: [name.text!,address.text!,phone.text!,record.text!,tag.text!,#imageLiteral(resourceName: "logo")],applicationActivities: nil)
+        
+        present(activityController, animated: true, completion: nil)
+
+    }
+    
+    
     @IBAction func Edit(_ sender: Any) {
     
         let alert = UIAlertController(title: "Edit", message: "", preferredStyle: .alert)
@@ -137,6 +147,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     }
     
 }
+
 
 class PointOfInterest: NSObject, MKAnnotation{
     var coordinate: CLLocationCoordinate2D

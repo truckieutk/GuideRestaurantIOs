@@ -8,12 +8,14 @@
 import UIKit
 import CoreData
 
-class TableViewController: UITableViewController {
+class TableViewController: UITableViewController, UISearchBarDelegate, UISearchDisplayDelegate	 {
     
     
+    @IBOutlet weak var searchBar: UISearchBar!
     var restaurants: [NSManagedObject] = []
     
-   
+    var filter: [Restaurant]!
+
     @IBAction func addRestaurant(_ sender: Any) {
       
         let alert = UIAlertController(title: "Add a new Restaurant", message: "", preferredStyle: .alert)
@@ -91,11 +93,8 @@ class TableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-        
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem
+        searchBar.delegate = self
+
     }
     
     // MARK: - Table view data source
@@ -113,11 +112,12 @@ class TableViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell")! as UITableViewCell
         let res = restaurants[indexPath.row]
         cell.textLabel?.text = (res.value(forKey:"name") as! String)
         return cell
     }
+    
     
     
     /*
@@ -177,4 +177,8 @@ class TableViewController: UITableViewController {
         d.res = res
     }
     
-}
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+    
+       
+        }
+    }
