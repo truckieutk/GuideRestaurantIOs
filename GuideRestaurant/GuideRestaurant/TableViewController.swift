@@ -8,13 +8,12 @@
 import UIKit
 import CoreData
 
-class TableViewController: UITableViewController, UISearchBarDelegate, UISearchDisplayDelegate	 {
-    
-    
+class TableViewController: UITableViewController, UISearchBarDelegate, UISearchDisplayDelegate {
+
     @IBOutlet weak var searchBar: UISearchBar!
     var restaurants: [NSManagedObject] = []
     
-    var filter: [Restaurant]!
+   
 
     @IBAction func addRestaurant(_ sender: Any) {
       
@@ -93,9 +92,17 @@ class TableViewController: UITableViewController, UISearchBarDelegate, UISearchD
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        tableView.reloadData()
+        
         searchBar.delegate = self
-
+        
+        //initSearchController()
+        
+        
     }
+    
+   
+    
     
     // MARK: - Table view data source
     
@@ -178,7 +185,31 @@ class TableViewController: UITableViewController, UISearchBarDelegate, UISearchD
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-    
-       
+        guard let searchText = searchBar.text else { return }
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else{ return }
+        let request: NSFetchRequest<Restaurant> = Restaurant.fetchRequest()
+        let context = appDelegate.persistentContainer.viewContext
+        if searchText.isEmpty{
+            do{
+                restaurants = try context.fetch(request)
+            } catch let error as NSError{
+                print("Cannot fetch, \(error), \(error.userInfo)")
+            }
+            tableView.reloadData()
+            DispatchQueue.main.async{
+                searchBar.resignFirstResponder()
+            }
+        } else{
+            
+            
+            request.predicate = NSPredicate(format: "name CONTAINS [cd] %@", searchText)
+            do {
+                restaurants = try context.fetch(request)
+            } catch let error as NSError{
+                print("Cannot fetch, \(error), \(error.userInfo)")
+            }
+            tableView.reloadData()
         }
     }
+
+}
