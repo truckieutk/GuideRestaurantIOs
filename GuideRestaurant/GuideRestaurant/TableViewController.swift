@@ -10,12 +10,10 @@ import CoreData
 
 class TableViewController: UITableViewController, UISearchBarDelegate, UISearchDisplayDelegate	 {
     
-    
-    @IBOutlet weak var searchBar: UISearchBar!
     var restaurants: [NSManagedObject] = []
+    private var searchBarText: String = String()
+    @IBOutlet weak var searchBar: UISearchBar!
     
-    var filter: [Restaurant]!
-
     @IBAction func addRestaurant(_ sender: Any) {
       
         let alert = UIAlertController(title: "Add a new Restaurant", message: "", preferredStyle: .alert)
@@ -81,6 +79,10 @@ class TableViewController: UITableViewController, UISearchBarDelegate, UISearchD
         let context = appDelegate.persistentContainer.viewContext
         
         let request = NSFetchRequest<NSManagedObject>(entityName: "Restaurant")
+            //for res in restaurants {restaurants.filter({searchBarText.isEmpty ? true : $0.name.contains(searchBarText)})
+       // let pred = NSPredicate(format: "name CONTAINS %@", "Min")
+    
+       // request.predicate = pred
         do{
             restaurants = try context.fetch(request)
         } catch let error as NSError{
@@ -94,6 +96,7 @@ class TableViewController: UITableViewController, UISearchBarDelegate, UISearchD
         super.viewDidLoad()
         
         searchBar.delegate = self
+        //filter = restaurants
 
     }
     
@@ -177,8 +180,32 @@ class TableViewController: UITableViewController, UISearchBarDelegate, UISearchD
         d.res = res
     }
     
+   
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-    
-       
+        guard let searchText = searchBar.text else { return }
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else{ return }
+        let request: NSFetchRequest<Restaurant> = Restaurant.fetchRequest()
+        let context = appDelegate.persistentContainer.viewContext
+        if searchText.isEmpty{
+            do{
+                restaurants = try context.fetch(request)
+            } catch let error as NSError{
+                print("Cannot fetch, \(error), \(error.userInfo)")
+            }
+            tableView.reloadData()
+            DispatchQueue.main.async{
+            searchBar.resignFirstResponder()
+            }
+        } else{
+           
+           
+            request.predicate = NSPredicate(format: "name CONTAINS [cd] %@", searchText)
+            do {
+                restaurants = try context.fetch(request)
+            } catch let error as NSError{
+                print("Cannot fetch, \(error), \(error.userInfo)")
+            }
+            tableView.reloadData()
         }
     }
+}
