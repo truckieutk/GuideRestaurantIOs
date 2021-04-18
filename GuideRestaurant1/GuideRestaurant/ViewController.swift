@@ -42,7 +42,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     
     
     @IBAction func Edit(_ sender: Any) {
-    
+        
         let alert = UIAlertController(title: "Edit", message: "", preferredStyle: .alert)
         alert.addTextField(configurationHandler: {(textFieldName) in
             textFieldName.placeholder = self.res.value(forKey: "name") as? String
@@ -62,12 +62,57 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         // present(alert, animated: true)
         let save = UIAlertAction(title: "Save", style: .default){
             [unowned self] action in
-            guard let textFieldName = alert.textFields?[0], let nameToSave = textFieldName.text else {return}
-            guard let textFieldAddress = alert.textFields?[1], let addressToSave = textFieldAddress.text else {return}
-            guard let textFieldPhone = alert.textFields?[2], let phoneToSave = textFieldPhone.text else {return}
-            guard let textFieldRecord = alert.textFields?[3], let recordToSave = textFieldRecord.text else {return}
-            guard let textFieldTag = alert.textFields?[4], let tagsToSave = textFieldTag.text else {return}
+            
+            
+            let textFieldName = alert.textFields![0]
+            var nameToSave = ""
+            if (textFieldName.text == ""){
+                nameToSave = self.res.value(forKey: "name") as! String
+            } else{
+                nameToSave = textFieldName.text!
+            }
+            
+            var addressToSave = ""
+            let textFieldAddress = alert.textFields![1]
+            if(textFieldAddress.text == ""){
+                addressToSave = self.res.value(forKey: "address") as! String
+            } else {
+                addressToSave = textFieldAddress.text!
+            }
+            
+            
+            var phoneToSave = ""
+            let textFieldPhone = alert.textFields![2]
+            if(textFieldPhone.text == ""){
+                phoneToSave = self.res.value(forKey: "phone") as! String
+            } else {
+                phoneToSave = textFieldPhone.text!
+            }
+            
+            
+            
+            var recordToSave = ""
+            let textFieldRecord = alert.textFields![3]
+            if(textFieldRecord.text == ""){
+                recordToSave = self.res.value(forKey: "record") as! String
+            } else {
+                recordToSave = textFieldRecord.text!
+            }
+            
+            
+            
+            var tagsToSave = ""
+            let textFieldTags = alert.textFields![4]
+            if(textFieldTags.text == ""){
+                tagsToSave = self.res.value(forKey: "tag") as! String
+            } else {
+                tagsToSave = textFieldTags.text!
+            }
+            
+            
+            
             self.save(name: nameToSave, address: addressToSave,phone:phoneToSave, record: recordToSave, tag: tagsToSave)
+            self.viewWillAppear(true)
             
         }
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
@@ -87,6 +132,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         res.setValue(tag, forKey: "tag")
         do{
             try context.save()
+            
         } catch let error as NSError{ print("Could not save, \(error), \(error.userInfo)")
             
         }
