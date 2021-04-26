@@ -1,19 +1,22 @@
 //
 //  TableViewController.swift
-//  Restaurant
+//  GuideRestaurant
 //
-//  Created by Tech on 2021-03-22.
+//  Created by Tech on 2021-04-11.
 //  Copyright © 2021 GBC. All rights reserved.
 //
-
 import UIKit
 import CoreData
 
-class TableViewController: UITableViewController {
-    
-    
+class TableViewController: UITableViewController, UISearchBarDelegate, UISearchDisplayDelegate {
+
+    @IBOutlet weak var searchBar: UISearchBar!
     var restaurants: [NSManagedObject] = []
-    @IBAction func addRestaurand(_ sender: Any) {
+    
+   
+
+    @IBAction func addRestaurant(_ sender: Any) {
+      
         let alert = UIAlertController(title: "Add a new Restaurant", message: "", preferredStyle: .alert)
         alert.addTextField(configurationHandler: {(textFieldName) in
             textFieldName.placeholder = "Name of Restaurant"
@@ -46,7 +49,6 @@ class TableViewController: UITableViewController {
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
         alert.addAction(cancelAction)
         present(alert, animated: true)
-        
     }
     func save(name:String, address: String, phone: String, record: String, tag: String){
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
@@ -85,48 +87,54 @@ class TableViewController: UITableViewController {
         }
         tableView.reloadData()
     }
-
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem
+        
+        tableView.reloadData()
+        
+        searchBar.delegate = self
+        
+        //initSearchController()
+        
+        
     }
-
+    
+   
+    
+    
     // MARK: - Table view data source
-
+    
     override func numberOfSections(in tableView: UITableView) -> Int {
         // #warning Incomplete implementation, return the number of sections
         return 1
     }
-
+    
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
         return restaurants.count
     }
-
+    
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell")! as UITableViewCell
         let res = restaurants[indexPath.row]
         cell.textLabel?.text = (res.value(forKey:"name") as! String)
         return cell
     }
     
-
+    
+    
     /*
-    // Override to support conditional editing of the table view.
-    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
-        return true
-    }
-    */
-
+     // Override to support conditional editing of the table view.
+     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+     // Return false if you do not want the specified item to be editable.
+     return true
+     }
+     */
+    
     
     // Override to support editing the table view.
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
@@ -147,33 +155,61 @@ class TableViewController: UITableViewController {
         }
     }
     
-
+    
     /*
-    // Override to support rearranging the table view.
-    override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
-
-    }
-    */
-
+     // Override to support rearranging the table view.
+     override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
+     
+     }
+     */
+    
     /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-
+     // Override to support conditional rearranging of the table view.
+     override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
+     // Return false if you do not want the item to be re-orderable.
+     return true
+     }
+     */
+    
     
     // MARK: - Navigation
-
+    
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
- // Get the new view controller using segue.destination.
- // Pass the selected object to the new view controller.
- 
-         let res = restaurants[tableView.indexPathForSelectedRow!.row]
-         let d = segue.destination as! ViewController
-         d.res = res
-         }
+        // Get the new view controller using segue.destination.
+        // Pass the selected object to the new view controller.
+        
+        let res = restaurants[tableView.indexPathForSelectedRow!.row]
+        let d = segue.destination as! ViewController
+        d.res = res
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        guard let searchText = searchBar.text else { return }
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else{ return }
+        let request: NSFetchRequest<Restaurant> = Restaurant.fetchRequest()
+        let context = appDelegate.persistentContainer.viewContext
+        if searchText.isEmpty{
+            do{
+                restaurants = try context.fetch(request)
+            } catch let error as NSError{
+                print("Cannot fetch, \(error), \(error.userInfo)")
+            }
+            tableView.reloadData()
+            DispatchQueue.main.async{
+                searchBar.resignFirstResponder()
+            }
+        } else{
+            
+            
+            request.predicate = NSPredicate(format: "name CONTAINS [cd] %@", searchText)
+            do {
+                restaurants = try context.fetch(request)
+            } catch let error as NSError{
+                print("Cannot fetch, \(error), \(error.userInfo)")
+            }
+            tableView.reloadData()
+        }
+    }
 
 }
